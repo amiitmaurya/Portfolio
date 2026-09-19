@@ -1,0 +1,23 @@
+<div class="skills-container" *ngIf="content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Technical Skills Matrix</h1>
+      <p class="page-subtitle">Backend development (.NET, SQL Server), Software QA background, and tools</p>
+    </div>
+  </div>
+
+  <div class="skills-grid">
+    <div *ngFor="let cat of skillCategories" class="card">
+      <div class="skill-category-title">
+        <span style="font-size: 1.2rem;">{{ cat.icon }}</span>
+        <span>{{ cat.title }}</span>
+      </div>
+
+      <div class="tech-tag-group" style="margin-top: 16px;">
+        <span *ngFor="let skill of getCategorySkills(cat.key)" class="tech-tag" style="padding: 6px 12px; font-size: 0.85rem;">
+          {{ skill }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

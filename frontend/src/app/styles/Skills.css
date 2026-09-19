@@ -1,0 +1,28 @@
+/* Skills Page Specific Styles */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.skill-category-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.edu-timeline-item {
+  border-left: 3px solid #6366f1;
+  padding-left: 14px;
+}
+
+.cert-card-box {
+  background: #0f172a;
+  border: 1px solid #334155;
+  padding: 14px;
+  border-radius: 10px;
+}

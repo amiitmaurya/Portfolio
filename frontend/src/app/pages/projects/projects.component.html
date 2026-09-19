@@ -1,0 +1,37 @@
+<div class="projects-container" *ngIf="content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Portfolio Projects & Systems</h1>
+      <p class="page-subtitle">Production-ready applications, REST APIs, and database architectures built by Me</p>
+    </div>
+  </div>
+
+  <div class="projects-grid">
+    <div *ngFor="let project of content.projects" class="card project-card">
+      <div>
+        <div class="project-header">
+          <span class="tech-tag font-bold">{{ project.badge || 'Full Stack' }}</span>
+          <span class="text-muted-sm font-bold">{{ project.category }}</span>
+        </div>
+        <h2 class="project-title">{{ project.title }}</h2>
+        <p class="text-indigo font-bold" style="margin-bottom: 8px;">{{ project.subtitle }}</p>
+        <p class="project-desc">{{ project.description }}</p>
+
+        <div *ngIf="project.features?.length" style="margin-bottom: 16px;">
+          <h4 style="font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-bottom: 8px;">Key Deliverables & Specs:</h4>
+          <ul class="project-features-list">
+            <li *ngFor="let feat of project.features">
+              <span style="color: #10b981;">✓</span> {{ feat }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="project-footer">
+        <div class="tech-tag-group">
+          <span *ngFor="let t of project.tech" class="tech-tag">{{ t }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

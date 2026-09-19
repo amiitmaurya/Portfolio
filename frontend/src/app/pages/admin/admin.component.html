@@ -1,0 +1,473 @@
+<div class="admin-container" *ngIf="masterContent">
+  <!-- Top Admin Header Bar -->
+  <div class="page-header" style="margin-bottom: 24px;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <!--<span class="badge badge-success badge-sql-online">SQL Server Online</span>-->
+        <span style="font-size: 0.85rem; color: #94a3b8;">Logged in as: <strong style="color: #ffffff;">{{ adminUsername }}</strong></span>
+      </div>
+      <h1 class="page-title" style="margin-top: 4px;">Admin Full CRUD Control Panel</h1>
+    </div>
+
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <button class="btn btn-secondary" (click)="fetchAnalytics()" [disabled]="loading" title="Refresh All Data">
+        🔄 Refresh
+      </button>
+      <button class="btn btn-secondary" (click)="handleLogout()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">
+        🚪 Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div *ngIf="toastMsg" class="toast">
+    ✅ {{ toastMsg }}
+  </div>
+
+  <!-- Admin Main Navigation Tabs -->
+  <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;">
+    <button class="btn" [ngClass]="activeTab === 'messages' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'messages'">
+      📥 Messages Inbox
+    </button>
+    <button class="btn" [ngClass]="activeTab === 'master' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'master'">
+      🎛️ Full CRUD Content Manager
+    </button>
+    <button class="btn" [ngClass]="activeTab === 'security' ? 'btn-primary' : 'btn-secondary'" (click)="activeTab = 'security'">
+      🔑 Security
+    </button>
+  </div>
+
+  <!-- MODULE 2: MESSAGES INBOX -->
+  <div *ngIf="activeTab === 'messages'" class="card" style="padding: 28px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: #ffffff;">Contact Messages Inbox ({{ messages.length }})</h2>
+        <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 2px;">Live inquiries submitted by recruiters and clients from the Contact page</p>
+      </div>
+      <button class="btn btn-secondary" (click)="fetchAnalytics()">
+        🔄 Refresh Inbox
+      </button>
+    </div>
+
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width: 170px;">Date & Time</th>
+            <th style="width: 150px;">Sender Name</th>
+            <th style="width: 220px;">Email</th>
+            <th style="width: 160px;">Subject</th>
+            <th>Message Body</th>
+            <th style="width: 80px; text-align: center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let msg of getPaginatedMessages()">
+            <td style="color: #94a3b8; font-size: 0.8rem; white-space: nowrap;">
+              {{ formatDate(msg.createdAt) }}
+            </td>
+            <td style="font-weight: 700; color: #ffffff;">{{ msg.name }}</td>
+            <td>
+              <a [href]="'mailto:' + msg.email" style="color: #818cf8; font-weight: 600; text-decoration: none;">
+                {{ msg.email }}
+              </a>
+            </td>
+            <td style="font-weight: 600; color: #cbd5e1;">{{ msg.subject || 'Inquiry' }}</td>
+            <td style="font-size: 0.875rem; color: #cbd5e1; line-height: 1.5;">{{ msg.message }}</td>
+            <td style="text-align: center;">
+              <button class="btn btn-secondary btn-delete-icon" (click)="handleDeleteMessage(msg.id || msg._id)" title="Delete Message">
+                🗑️
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="messages.length === 0">
+            <td colSpan="6" style="text-align: center; padding: 48px; color: #94a3b8;">
+              No messages in inbox yet. Send a test message on the Contact page to verify!
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINATION CONTROLS -->
+    <div *ngIf="messages.length > MSGS_PER_PAGE" class="pagination-bar">
+      <div style="font-size: 0.85rem; color: #94a3b8;">
+        Showing <strong style="color: #ffffff;">{{ (msgPage - 1) * MSGS_PER_PAGE + 1 }}</strong> - <strong style="color: #ffffff;">{{ getMin(msgPage * MSGS_PER_PAGE, messages.length) }}</strong> of <strong style="color: #ffffff;">{{ messages.length }}</strong> messages
+      </div>
+
+      <div class="pagination-btn-group">
+        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" [disabled]="msgPage === 1" (click)="msgPage = msgPage - 1">
+          Previous
+        </button>
+        <button *ngFor="let p of getPagesArray()" class="btn pagination-page-btn" [ngClass]="msgPage === p ? 'btn-primary' : 'btn-secondary'" (click)="msgPage = p">
+          {{ p }}
+        </button>
+        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" [disabled]="msgPage === getTotalMsgPages()" (click)="msgPage = msgPage + 1">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 3: FULL CRUD CONTENT MANAGER -->
+  <div *ngIf="activeTab === 'master'" class="card" style="padding: 28px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h2 style="font-size: 1.35rem; font-weight: 800;"> Content Manager </h2>
+        <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 4px;">
+          Add, Edit, or Delete any item in your portfolio. 
+        </p>
+      </div>
+      <button class="btn btn-primary" (click)="saveMasterContent()" [disabled]="savingContent">
+        💾 {{ savingContent ? 'Saving to SQL...' : 'Save All Changes' }}
+      </button>
+    </div>
+
+    <!-- Sub Tabs -->
+    <div style="display: flex; gap: 8px; margin-bottom: 28px; border-bottom: 1px solid #334155; padding-bottom: 12px; flex-wrap: wrap;">
+      <button class="btn" [ngClass]="editorTab === 'personal' ? 'btn-primary' : 'btn-secondary'" (click)="editorTab = 'personal'">
+        👤 Personal Info & Achievements
+      </button>
+      <button class="btn" [ngClass]="editorTab === 'experience' ? 'btn-primary' : 'btn-secondary'" (click)="editorTab = 'experience'">
+        💼 Experience ({{ getExperiences().length }})
+      </button>
+      <button class="btn" [ngClass]="editorTab === 'projects' ? 'btn-primary' : 'btn-secondary'" (click)="editorTab = 'projects'">
+        💻 Projects ({{ masterContent.projects.length }})
+      </button>
+      <button class="btn" [ngClass]="editorTab === 'skills' ? 'btn-primary' : 'btn-secondary'" (click)="editorTab = 'skills'">
+        ⚙️ Skills Matrix
+      </button>
+      <button class="btn" [ngClass]="editorTab === 'education' ? 'btn-primary' : 'btn-secondary'" (click)="editorTab = 'education'">
+        🎓 Education & Certifications
+      </button>
+    </div>
+
+    <!-- 1. PERSONAL INFO & ACHIEVEMENTS -->
+    <div *ngIf="editorTab === 'personal'">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" class="form-control" [(ngModel)]="masterContent.personalInfo.name">
+        </div>
+        <div class="form-group">
+          <label>Header Subtitle / Tagline</label>
+          <input type="text" class="form-control" [(ngModel)]="masterContent.personalInfo.subtitle">
+        </div>
+      </div>
+
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" class="form-control" [(ngModel)]="masterContent.personalInfo.email">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" class="form-control" [(ngModel)]="masterContent.personalInfo.phone">
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" class="form-control" [(ngModel)]="masterContent.personalInfo.location">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Professional Summary & Bio</label>
+        <textarea class="form-control" rows="4" [(ngModel)]="masterContent.personalInfo.summary"></textarea>
+      </div>
+
+      <div style="margin-top: 28px; border-top: 1px solid #334155; padding-top: 20px;">
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: #38bdf8; margin-bottom: 14px;">Key Achievements (Bullet Highlights)</h3>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <input type="text" class="form-control" placeholder="Add a new achievement bullet..." [(ngModel)]="newAchieveText">
+          <button type="button" class="btn btn-primary" (click)="addAchievement()" style="flex-shrink: 0;">
+            ➕ Add Bullet
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div *ngFor="let ach of masterContent.keyAchievements; let i = index" class="achievement-row">
+            <ng-container *ngIf="editingAchieveIndex !== i; else editAchieveBlock">
+              <span style="color: #cbd5e1; font-size: 0.9rem; flex: 1; padding-right: 12px;">• {{ ach }}</span>
+              <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                <button type="button" (click)="editAchievement(i)" class="btn-delete-sm" title="Edit Bullet" style="color: #38bdf8;">
+                  ✏️
+                </button>
+                <button type="button" (click)="deleteAchievement(i)" class="btn-delete-sm" title="Delete Bullet">
+                  🗑️
+                </button>
+              </div>
+            </ng-container>
+
+            <ng-template #editAchieveBlock>
+              <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="editingAchieveText" 
+                  (keyup.enter)="saveEditedAchievement(i)" 
+                  (keyup.escape)="cancelEditAchievement()"
+                  style="flex: 1; padding: 6px 12px; font-size: 0.875rem;">
+                <button type="button" class="btn btn-primary" (click)="saveEditedAchievement(i)" style="padding: 6px 12px; font-size: 0.8rem; flex-shrink: 0;">
+                  💾 Save
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="cancelEditAchievement()" style="padding: 6px 12px; font-size: 0.8rem; flex-shrink: 0;">
+                  ❌ Cancel
+                </button>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. EXPERIENCE CRUD -->
+    <div *ngIf="editorTab === 'experience'">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #818cf8;">Work Experiences List</h3>
+        <button type="button" class="btn btn-primary" (click)="openNewExperience()">
+          ➕ Add New Experience
+        </button>
+      </div>
+
+      <!-- FORM EDIT PANEL -->
+      <div *ngIf="editingExp" class="editor-modal-exp">
+        <h4 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 16px; color: #ffffff;">
+          {{ editingExp.id ? 'Edit Work Experience' : 'Add New Work Experience' }}
+        </h4>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label>Job Title / Role *</label>
+            <input type="text" class="form-control" [(ngModel)]="editingExp.role">
+          </div>
+          <div class="form-group">
+            <label>Company Name *</label>
+            <input type="text" class="form-control" [(ngModel)]="editingExp.company">
+          </div>
+          <div class="form-group">
+            <label>Period / Duration *</label>
+            <input type="text" class="form-control" [(ngModel)]="editingExp.period" placeholder="2022 - Present">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" class="form-control" [(ngModel)]="editingExp.location">
+        </div>
+
+        <div class="form-group">
+          <label>Key Responsibilities (One per line)</label>
+          <textarea class="form-control" rows="4" [(ngModel)]="editingExp.bulletsText" placeholder="Architected RESTful APIs..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn btn-primary" (click)="saveExperience()">Save Experience</button>
+          <button type="button" class="btn btn-secondary" (click)="editingExp = null">Cancel</button>
+        </div>
+      </div>
+
+      <!-- LIST CARDS -->
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div *ngFor="let exp of getExperiences(); let i = index" class="item-list-card-flex">
+          <div>
+            <span class="timeline-date">{{ exp.period }}</span>
+            <h4 style="font-size: 1.1rem; font-weight: 700; color: #ffffff; margin-top: 4px;">{{ exp.role }}</h4>
+            <div style="font-size: 0.9rem; color: #818cf8; font-weight: 600;">{{ exp.company }} ({{ exp.location || 'India' }})</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" (click)="editExperience(exp, i)">✏️ Edit</button>
+            <button class="btn btn-secondary btn-delete-icon" (click)="deleteExperience(i)">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PROJECTS CRUD -->
+    <div *ngIf="editorTab === 'projects'">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #38bdf8;">Projects List</h3>
+        <button type="button" class="btn btn-primary" (click)="openNewProject()">
+          ➕ Add New Project
+        </button>
+      </div>
+
+      <!-- EDIT FORM -->
+      <div *ngIf="editingProj" class="editor-modal-proj">
+        <h4 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 16px; color: #ffffff;">
+          {{ editingProj.id ? 'Edit Project' : 'Add New Project' }}
+        </h4>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Project Title *</label>
+            <input type="text" class="form-control" [(ngModel)]="editingProj.title">
+          </div>
+          <div class="form-group">
+            <label>Subtitle / Tagline *</label>
+            <input type="text" class="form-control" [(ngModel)]="editingProj.subtitle">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" class="form-control" [(ngModel)]="editingProj.category">
+          </div>
+          <div class="form-group">
+            <label>Badge Label</label>
+            <input type="text" class="form-control" [(ngModel)]="editingProj.badge">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="editingProj.description"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Key Deliverables & Specs (One per line)</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="editingProj.featuresText" placeholder="Implemented JWT authentication..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Tech Stack Tags (Comma separated)</label>
+          <input type="text" class="form-control" [(ngModel)]="editingProj.techText" placeholder="C# ASP.NET Core, SQL Server, Angular">
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn btn-primary" (click)="saveProject()">Save Project</button>
+          <button type="button" class="btn btn-secondary" (click)="editingProj = null">Cancel</button>
+        </div>
+      </div>
+
+      <!-- LIST CARDS -->
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div *ngFor="let proj of masterContent.projects; let i = index" class="item-list-card-flex">
+          <div>
+            <span class="tech-tag font-bold">{{ proj.badge || 'Full Stack' }}</span>
+            <h4 style="font-size: 1.1rem; font-weight: 700; color: #ffffff; margin-top: 6px;">{{ proj.title }}</h4>
+            <p style="font-size: 0.85rem; color: #94a3b8;">{{ proj.subtitle }}</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" (click)="editProject(proj, i)">✏️ Edit</button>
+            <button class="btn btn-secondary btn-delete-icon" (click)="deleteProject(i)">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. SKILLS MATRIX CRUD -->
+    <div *ngIf="editorTab === 'skills'">
+      <h3 style="font-size: 1.15rem; font-weight: 800; color: #34d399; margin-bottom: 20px;">Skills Matrix Categories</h3>
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div *ngFor="let catKey of skillCategoryKeys" class="item-list-card">
+          <h4 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; margin-bottom: 10px;">{{ catKey }}</h4>
+          <div class="form-group">
+            <label>Skills List (Comma separated)</label>
+            <input type="text" class="form-control" [value]="getSkillsJoined(catKey)" (input)="updateSkillsJoined(catKey, $event)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. EDUCATION & CERTIFICATIONS CRUD -->
+    <div *ngIf="editorTab === 'education'">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fbbf24;">Education Items</h3>
+        <button type="button" class="btn btn-primary" (click)="addEducation()">➕ Add Education</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px;">
+        <div *ngFor="let edu of masterContent.education; let i = index" class="editor-modal-edu">
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label>Degree Title *</label>
+              <input type="text" class="form-control" [(ngModel)]="edu.degree">
+            </div>
+            <div class="form-group">
+              <label>Institution Name *</label>
+              <input type="text" class="form-control" [(ngModel)]="edu.institution">
+            </div>
+            <div class="form-group">
+              <label>Year Period *</label>
+              <input type="text" class="form-control" [(ngModel)]="edu.year">
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-delete-icon" (click)="deleteEducation(i)">Delete Degree</button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #f472b6;">Certifications</h3>
+        <button type="button" class="btn btn-primary" (click)="addCertification()">➕ Add Certification</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div *ngFor="let cert of masterContent.certifications; let i = index" class="editor-modal-cert">
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label>Certification Title *</label>
+              <input type="text" class="form-control" [(ngModel)]="cert.title">
+            </div>
+            <div class="form-group">
+              <label>Issuer *</label>
+              <input type="text" class="form-control" [(ngModel)]="cert.issuer">
+            </div>
+            <div class="form-group">
+                <label>Issued Date *</label>
+              <input type="text" class="form-control" [(ngModel)]="cert.period">
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-delete-icon" (click)="deleteCertification(i)">Delete Certification</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 4: SECURITY -->
+  <div *ngIf="activeTab === 'security'" class="security-card">
+    <h2 style="font-size: 1.3rem; font-weight: 800; color: #ffffff; margin-bottom: 16px;">Admin Password Settings</h2>
+    <div class="security-alert">
+      🔒 Update your Admin Login credentials below.
+    </div>
+
+    <form (ngSubmit)="handleSaveSecurity()">
+      <div class="form-group">
+        <label>Admin User ID / Username (Read-only)</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          [value]="securityData.username" 
+          name="adminUser" 
+          readonly 
+          disabled
+          style="background-color: rgba(30, 41, 59, 0.7); color: #94a3b8; cursor: not-allowed; border-color: #334155;">
+      </div>
+
+      <div class="form-group">
+        <label>New Password *</label>
+        <div style="position: relative; display: flex; align-items: center;">
+          <input 
+            [type]="showNewPassword ? 'text' : 'password'" 
+            class="form-control" 
+            [(ngModel)]="securityData.newPassword" 
+            name="newPassword"
+            placeholder="Enter New Password"
+            required
+            style="padding-right: 44px;">
+          <button 
+            type="button" 
+            (click)="showNewPassword = !showNewPassword" 
+            style="position: absolute; right: 10px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.15rem; display: flex; align-items: center; justify-content: center; padding: 4px; transition: color 0.2s;"
+            [attr.aria-label]="showNewPassword ? 'Hide password' : 'Show password'"
+            [title]="showNewPassword ? 'Hide password' : 'Show password'">
+            {{ showNewPassword ? '👁️' : '🙈' }}
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+        💾 Save Security Credentials
+      </button>
+    </form>
+  </div>
+</div>

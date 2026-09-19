@@ -1,0 +1,59 @@
+<div class="experience-container" *ngIf="content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Work Experience & Timeline</h1>
+      <p class="page-subtitle">Professional full stack engineering track record, roles, and software projects</p>
+    </div>
+  </div>
+
+  <div class="exp-grid">
+    <!-- Work Experience Timeline -->
+    <div>
+      <h2 style="font-size: 1.3rem; font-weight: 800; color: #ffffff; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+        💼 Work Experience
+      </h2>
+
+      <div class="timeline">
+        <div *ngFor="let exp of experiences" class="timeline-item">
+          <div class="timeline-dot"></div>
+          <span class="timeline-date">{{ exp.period }}</span>
+          <h3 class="timeline-role">{{ exp.role }}</h3>
+          <div class="timeline-company">{{ exp.company }} • {{ exp.location || 'India' }}</div>
+
+          <ul class="timeline-bullets">
+            <li *ngFor="let bullet of getBulletsArray(exp)">
+              <span style="color: #6366f1; font-weight: bold;">•</span> {{ bullet }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Education & Certifications Sidebar -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <div class="card">
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: #fbbf24; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          🎓 Education
+        </h3>
+        <div *ngFor="let edu of content.education" class="edu-timeline-item" style="margin-bottom: 16px;">
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">{{ edu.degree }}</h4>
+          <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 2px;">{{ edu.institution }}</div>
+          <div style="font-size: 0.75rem; color: #818cf8; font-weight: 700; margin-top: 4px;">{{ edu.year }}</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: #f472b6; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          📜 Certifications & Honors
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div *ngFor="let cert of content.certifications" class="cert-card-box">
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: #ffffff;">{{ cert.title }}</h4>
+            <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 2px;">Issued by {{ cert.issuer }}</div>
+            <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; margin-top: 4px;">Issued Date: {{ cert.period }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
