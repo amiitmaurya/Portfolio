@@ -7,8 +7,13 @@ using PortfolioApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add controllers
-builder.Services.AddControllers();
+// Add controllers with flexible JSON options
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.AllowTrailingCommas = true;
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 
 // Register SQL Server DbContext (SSMS)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
