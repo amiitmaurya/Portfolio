@@ -53,7 +53,7 @@ export class ContactComponent implements OnInit {
     };
 
     try {
-      await firstValueFrom(this.http.post('http://localhost:5000/api/messages', msgObj));
+      await firstValueFrom(this.http.post('https://amitmaurya.runasp.net/api/messages', msgObj));
     } catch (err) {
       console.warn('API message save fallback to localStorage');
       const stored = JSON.parse(localStorage.getItem('contact_messages') || '[]');

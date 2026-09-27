@@ -265,7 +265,7 @@ export const defaultPortfolioData: PortfolioData = {
   providedIn: 'root'
 })
 export class ContentService {
-  private apiUrl = 'http://localhost:5000/api/content';
+  private apiUrl = 'https://amitmaurya.runasp.net/api/content';
   private contentSubject: BehaviorSubject<PortfolioData>;
   public content$: Observable<PortfolioData>;
 

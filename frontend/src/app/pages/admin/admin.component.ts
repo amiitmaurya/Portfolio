@@ -77,7 +77,7 @@ export class AdminComponent implements OnInit {
     this.stats = await this.statsService.getStats();
 
     try {
-      this.messages = await firstValueFrom(this.http.get<any[]>('http://localhost:5000/api/messages'));
+      this.messages = await firstValueFrom(this.http.get<any[]>('https://amitmaurya.runasp.net/api/messages'));
     } catch (e) {
       this.messages = JSON.parse(localStorage.getItem('contact_messages') || '[]');
     }
@@ -96,7 +96,7 @@ export class AdminComponent implements OnInit {
     if (!confirm('Are you sure you want to delete this message?')) return;
 
     try {
-      await firstValueFrom(this.http.delete(`http://localhost:5000/api/messages/${id}`));
+      await firstValueFrom(this.http.delete(`https://amitmaurya.runasp.net/api/messages/${id}`));
     } catch (e) {}
 
     this.messages = this.messages.filter(m => (m.id || m._id) !== id);
@@ -339,7 +339,7 @@ export class AdminComponent implements OnInit {
 
     try {
       await firstValueFrom(
-        this.http.post('http://localhost:5000/api/admin/change-password', {
+        this.http.post('https://amitmaurya.runasp.net/api/admin/change-password', {
           username: this.securityData.username,
           currentPassword: 'admin123',
           newPassword: this.securityData.newPassword

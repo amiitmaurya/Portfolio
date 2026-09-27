@@ -62,5 +62,4 @@ app.MapControllers();
 // Redirect root URL / to Swagger UI
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
-Console.WriteLine("--> Portfolio ASP.NET Core API listening on http://localhost:5000");
-app.Run("http://localhost:5000");
+app.Run();

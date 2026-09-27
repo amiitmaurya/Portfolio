@@ -12,7 +12,7 @@ export interface StatsResponse {
   providedIn: 'root'
 })
 export class StatsService {
-  private apiUrl = 'http://localhost:5000/api/stats';
+  private apiUrl = 'https://amitmaurya.runasp.net/api/stats';
 
   constructor(private http: HttpClient) {}
 

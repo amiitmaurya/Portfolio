@@ -18,7 +18,7 @@ export class AdminLoginComponent {
   errorMessage: string = '';
   loading: boolean = false;
 
-  private apiUrl = 'http://localhost:5000/api/admin/login';
+  private apiUrl = 'https://amitmaurya.runasp.net/api/admin/login';
 
   constructor(
     private router: Router,
