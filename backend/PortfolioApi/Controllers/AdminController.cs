@@ -41,7 +41,7 @@ namespace PortfolioApi.Controllers
                     success = true,
                     token = token,
                     username = admin.Username,
-                    message = "Admin Login Successful with JWT Token"
+                    message = "Login Successful"
                 });
             }
 
