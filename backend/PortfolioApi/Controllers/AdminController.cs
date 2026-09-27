@@ -120,7 +120,7 @@ namespace PortfolioApi.Controllers
             var keyStr = _config["Jwt:Key"];
             if (string.IsNullOrWhiteSpace(keyStr) || keyStr.Length < 32)
             {
-                keyStr = "Amit_Portfolio_Super_Secret_JWT_Key_2026_Secure_32Bytes_Min!";
+                keyStr = "Amit_Portfolio_Super_Secret_JWT_Key_2026_Secure!";
             }
 
             var issuer = _config["Jwt:Issuer"] ?? "PortfolioApi";
