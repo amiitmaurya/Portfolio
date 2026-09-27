@@ -17,13 +17,21 @@ namespace PortfolioApi.Data
             context.Database.EnsureCreated();
 
             // 1. Seed Admin User
-            if (!context.AdminUsers.Any())
+            var existingAdmin = context.AdminUsers.FirstOrDefault();
+            if (existingAdmin == null)
             {
                 context.AdminUsers.Add(new AdminUser
                 {
-                    Username = "admin",
-                    Password = "password123"
+                    Username = "Amit",
+                    Password = "Amit@2026"
                 });
+                context.SaveChanges();
+            }
+            else
+            {
+                existingAdmin.Username = "Amit";
+                existingAdmin.Password = "Amit@2026";
+                context.SaveChanges();
             }
 
             // 2. Seed Stats
