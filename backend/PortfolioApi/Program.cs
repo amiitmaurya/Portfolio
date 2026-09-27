@@ -1,4 +1,8 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using PortfolioApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +17,35 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<PortfolioDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Configure CORS for decoupled Angular & React frontends (http://localhost:4200 & http://localhost:5173)
+// Configure JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "Amit_Portfolio_Super_Secret_JWT_Key_2026_Secure!";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "PortfolioApi";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "PortfolioClient";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
+
+// Configure CORS for Angular & React frontends
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowCors", policy =>
@@ -25,9 +57,30 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Configure Swagger / OpenAPI
+// Configure Swagger / OpenAPI with JWT Authorization Support
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Portfolio API", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+
+    c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecuritySchemeReference("Bearer"),
+            new List<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -56,7 +109,11 @@ app.UseSwaggerUI(c =>
 
 // Enable CORS Policy
 app.UseCors("AllowCors");
+
+// Enable Authentication & Authorization
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 // Redirect root URL / to Swagger UI
