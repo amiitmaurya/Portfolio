@@ -1,29 +1,26 @@
 namespace PortfolioApi.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using PortfolioApi.Data;
     using PortfolioApi.DTOs;
     using PortfolioApi.Models;
 
-    
     [ApiController]
     [Route("api/messages")]
     public class MessagesController : ControllerBase
     {
-       
         private readonly PortfolioDbContext _context;
 
-       
         public MessagesController(PortfolioDbContext context)
         {
             _context = context;
         }
 
         // GET: api/messages
-
-      
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetMessages()
         {
             var messages = await _context.Messages
@@ -44,8 +41,6 @@ namespace PortfolioApi.Controllers
         }
 
         // POST: api/messages
-
-        
         [HttpPost]
         public async Task<IActionResult> CreateMessage([FromBody] MessageDto dto)
         {
@@ -81,9 +76,8 @@ namespace PortfolioApi.Controllers
         }
 
         // DELETE: api/messages/{id}
-
-      
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteMessage(int id)
         {
             var msg = await _context.Messages.FindAsync(id);

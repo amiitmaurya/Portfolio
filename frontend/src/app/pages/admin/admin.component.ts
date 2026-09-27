@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ContentService, PortfolioData } from '../../services/content.service';
 import { StatsService, StatsResponse } from '../../services/stats.service';
@@ -72,12 +72,21 @@ export class AdminComponent implements OnInit {
     this.router.navigate(['/admin-login']);
   }
 
+  private getAuthHeaders(): { headers: HttpHeaders } {
+    const token = sessionStorage.getItem('admin_token') || localStorage.getItem('admin_jwt_token') || '';
+    return {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      })
+    };
+  }
+
   async fetchAnalytics(): Promise<void> {
     this.loading = true;
     this.stats = await this.statsService.getStats();
 
     try {
-      this.messages = await firstValueFrom(this.http.get<any[]>('https://amitmaurya.runasp.net/api/messages'));
+      this.messages = await firstValueFrom(this.http.get<any[]>('https://amitmaurya.runasp.net/api/messages', this.getAuthHeaders()));
     } catch (e) {
       this.messages = JSON.parse(localStorage.getItem('contact_messages') || '[]');
     }
@@ -96,7 +105,7 @@ export class AdminComponent implements OnInit {
     if (!confirm('Are you sure you want to delete this message?')) return;
 
     try {
-      await firstValueFrom(this.http.delete(`https://amitmaurya.runasp.net/api/messages/${id}`));
+      await firstValueFrom(this.http.delete(`https://amitmaurya.runasp.net/api/messages/${id}`, this.getAuthHeaders()));
     } catch (e) {}
 
     this.messages = this.messages.filter(m => (m.id || m._id) !== id);
@@ -343,7 +352,7 @@ export class AdminComponent implements OnInit {
           username: this.securityData.username,
           currentPassword: 'admin123',
           newPassword: this.securityData.newPassword
-        })
+        }, this.getAuthHeaders())
       );
     } catch (e) {}
 

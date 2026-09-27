@@ -1,27 +1,24 @@
 namespace PortfolioApi.Controllers
 {
+    using System.Text.Json;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using PortfolioApi.Data;
     using PortfolioApi.Models;
-    using System.Text.Json;
 
-   
     [ApiController]
     [Route("api/content")]
     public class ContentController : ControllerBase
     {
-        
         private readonly PortfolioDbContext _context;
 
-        
         public ContentController(PortfolioDbContext context)
         {
             _context = context;
         }
 
         // GET: api/content
-
         [HttpGet]
         public async Task<IActionResult> GetContent()
         {
@@ -35,9 +32,8 @@ namespace PortfolioApi.Controllers
         }
 
         // PUT: api/content
-
-        
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> UpdateContent([FromBody] JsonElement newContent)
         {
             var jsonString = newContent.GetRawText();

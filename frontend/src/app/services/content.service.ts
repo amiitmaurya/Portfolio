@@ -347,13 +347,22 @@ export class ContentService {
     return this.contentSubject.value;
   }
 
+  private getAuthHeaders(): { headers: HttpHeaders } {
+    const token = sessionStorage.getItem('admin_token') || localStorage.getItem('admin_jwt_token') || '';
+    return {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      })
+    };
+  }
+
   public async updateContent(data: PortfolioData): Promise<boolean> {
     const merged = this.sanitizePortfolioData({ ...this.currentContent, ...data });
     localStorage.setItem('master_portfolio_data', JSON.stringify(merged));
     this.contentSubject.next(merged);
 
     try {
-      const res = await firstValueFrom(this.http.put<any>(this.apiUrl, merged));
+      const res = await firstValueFrom(this.http.put<any>(this.apiUrl, merged, this.getAuthHeaders()));
       if (res && res.data) {
         let serverData = res.data;
         if (typeof serverData === 'string') {
