@@ -60,6 +60,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Redirect root URL / to Swagger UI
-app.MapGet("/", () => Results.Redirect("/swagger"));
+app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
 app.Run();

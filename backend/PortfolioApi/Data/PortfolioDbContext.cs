@@ -14,13 +14,8 @@ namespace PortfolioApi.Data
         
         public DbSet<AdminUser> AdminUsers { get; set; } = null!;
 
-       
-        public DbSet<PortfolioStat> Stats { get; set; } = null!;
-
-        
         public DbSet<ContactMessage> Messages { get; set; } = null!;
 
-        
         public DbSet<PortfolioContent> Contents { get; set; } = null!;
 
         /// <inheritdoc/>
@@ -30,10 +25,6 @@ namespace PortfolioApi.Data
 
             modelBuilder.Entity<AdminUser>()
                 .HasIndex(u => u.Username)
-                .IsUnique();
-
-            modelBuilder.Entity<PortfolioStat>()
-                .HasIndex(s => s.Key)
                 .IsUnique();
 
             modelBuilder.Entity<PortfolioContent>()

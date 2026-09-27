@@ -34,18 +34,7 @@ namespace PortfolioApi.Data
                 context.SaveChanges();
             }
 
-            // 2. Seed Stats
-            if (!context.Stats.Any(s => s.Key == "profile_views"))
-            {
-                context.Stats.Add(new PortfolioStat { Key = "profile_views", Value = 1 });
-            }
-
-            if (!context.Stats.Any(s => s.Key == "resume_downloads"))
-            {
-                context.Stats.Add(new PortfolioStat { Key = "resume_downloads", Value = 0 });
-            }
-
-            // 3. Seed Master Portfolio Content matching Amit Kumar Maurya Resume PDF
+            // 2. Seed Master Portfolio Content matching Amit Kumar Maurya Resume PDF
             var contentDoc = context.Contents.FirstOrDefault(c => c.Key == "master_portfolio_data");
 
             var defaultPortfolio = new
