@@ -1,4 +1,5 @@
-﻿name: Portfolio CI
+```yaml
+name: Portfolio CI/CD
 
 on:
   push:
@@ -11,8 +12,9 @@ on:
 
 jobs:
   build:
-    name: Build Docker Images
+    name: Build and Push Docker Images
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,18 +22,29 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Backend Docker Image
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Backend Image
         uses: docker/build-push-action@v6
         with:
           context: ./backend/PortfolioApi
           file: ./backend/PortfolioApi/Dockerfile
-          push: false
-          tags: portfolio-backend:ci
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-backend:${{ github.sha }}
 
-      - name: Build Frontend Docker Image
+      - name: Build and Push Frontend Image
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
-          push: false
-          tags: portfolio-frontend:ci
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-frontend:${{ github.sha }}
+```
