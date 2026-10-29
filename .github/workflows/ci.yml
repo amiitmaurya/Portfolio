@@ -4,9 +4,11 @@ on:
 push:
 branches:
 - master
+
 pull_request:
 branches:
 - master
+
 workflow_dispatch:
 
 jobs:
@@ -25,7 +27,7 @@ steps:
   - name: Build Backend Docker Image
     uses: docker/build-push-action@v6
     with:
-      context: .
+      context: ./backend/PortfolioApi
       file: ./backend/PortfolioApi/Dockerfile
       push: false
       tags: portfolio-backend:ci
