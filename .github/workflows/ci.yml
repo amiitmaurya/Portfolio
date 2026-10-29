@@ -1,4 +1,3 @@
-```yaml
 name: Portfolio CI/CD
 
 on:
@@ -35,8 +34,8 @@ jobs:
           file: ./backend/PortfolioApi/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-backend:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-backend:${{ github.sha }}
+            amitmaurya921/portfolio-backend:latest
+            amitmaurya921/portfolio-backend:${{ github.sha }}
 
       - name: Build and Push Frontend Image
         uses: docker/build-push-action@v6
@@ -45,6 +44,5 @@ jobs:
           file: ./frontend/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-frontend:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-frontend:${{ github.sha }}
-```
+            amitmaurya921/portfolio-frontend:latest
+            amitmaurya921/portfolio-frontend:${{ github.sha }}
