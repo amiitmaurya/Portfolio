@@ -1,0 +1,37 @@
+name: Portfolio CI
+
+on:
+push:
+branches: [main, master]
+pull_request:
+branches: [main, master]
+workflow_dispatch:
+
+jobs:
+build:
+runs-on: ubuntu-latest
+
+```
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v3
+
+  - name: Build Backend Docker Image
+    uses: docker/build-push-action@v6
+    with:
+      context: ./backend/PortfolioApi
+      file: ./backend/PortfolioApi/Dockerfile
+      push: false
+      tags: portfolio-backend:ci
+
+  - name: Build Frontend Docker Image
+    uses: docker/build-push-action@v6
+    with:
+      context: ./frontend
+      file: ./frontend/Dockerfile
+      push: false
+      tags: portfolio-frontend:ci
+```
